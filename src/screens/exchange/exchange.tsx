@@ -1,8 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router";
-import flagImages from "../../assets/images";
 import { exchange, exchangeCleanup } from "../../store/actions/currencies";
 import { currencyRate, currencyRateCleanup } from "../../store/actions/currencyRate.tsx";
 import { allCurrency } from "../../store/actions/fetchCurrencies";
@@ -13,37 +11,48 @@ import { fetchUser, fetchUserCleanup } from "../../store/actions/home";
  * @returns The Exchange page Component
  */
 const ExchangeInputWrapper = () => {
-    const [from, setFrom] = useState("");
-    const [to, setTo]: any = useState("");
-    const [loggedinUser, setLoggedinUser]: any = useState();
-    const [allCurrencies, setCurrencies] = useState([]);
-    const [error, setError] = useState("")
-    const [available, setAvailable] = useState(0)
-    const [conversionRate, setRate] = useState(0);
-    const [converBox, setConverBox] = useState(0);
-    const [amount, setAmount] = useState(0)
-    const [loading, setLoading] = useState(false)
-    const [balances, setBalances]: any = useState([])
-    const fetchUserState = useSelector((s: any) => s.fetchuser)
-    const allCurrencyState = useSelector((s: any) => s.fetchAllCurrency)
-    const dispatch = useDispatch()
-    const exchangeState = useSelector((s: any) => s.exchange)
+    const [from, setFrom] = useState(""); // state for storing the sell currency
+    const [to, setTo]: any = useState(""); // state for buy cuurency
+    const [loggedinUser, setLoggedinUser]: any = useState(); // the logged in user state variable
+    const [allCurrencies, setCurrencies] = useState([]); // all currency state
+    const [error, setError] = useState("") // stores teh error and send it back to user
+    const [available, setAvailable] = useState(0) // lists the availbale exchange currency
+    const [conversionRate, setRate] = useState(0); // stores the conversion rate
+    const [converBox, setConverBox] = useState(0); 
+    const [amount, setAmount] = useState(0) // returns the amount to recieve after exchangw
+    const [loading, setLoading] = useState(false) // stores the state of the app in loading state
+    const [balances, setBalances]: any = useState([]) // stores the user's balances
+    const fetchUserState = useSelector((s: any) => s.fetchuser) // fetch the logged in user details
+    const allCurrencyState = useSelector((s: any) => s.fetchAllCurrency) // fetch all currencies
+    const dispatch = useDispatch() // for firing actions
+    const exchangeState = useSelector((s: any) => s.exchange) 
     const exchangeRate = useSelector((s: any) => s.currencyRate)
-    const fromCurrency: any = document.querySelector(".from");
-    const toCurrency: any = document.querySelector('.to');
+    const fromCurrency: any = document.querySelector(".from"); // get the value of the sell currency(DOM)
+    const toCurrency: any = document.querySelector('.to'); // gets the value of the buy currency(DOM)
     var searchBox: any = document.querySelector('.searchBox');
-
+/**
+ * dispatch the fetuser and allcurrency action to fetch the login user 
+ * and fetch the available currencies respectively
+ */
     useEffect(() => {
         dispatch(fetchUser())
         dispatch(allCurrency())
     }, [dispatch,]);
+
+/**
+ * To get the exchange rate for two selected currency
+ */
     useEffect(() => {
+        // the endpoint payload
         const values = {
             "buyCcy": from === "" ? fromCurrency && fromCurrency.value : from,
             "sellCcy": to === "" ? toCurrency && toCurrency.value : to,
         }
+    // dispatch action to fetch the currency pair rate
         dispatch(currencyRate(values))
     }, [dispatch, from, fromCurrency, to, toCurrency]);
+
+
     useEffect(() => {
         if (fetchUserState.isSuccessful) {
             setLoggedinUser(fetchUserState.data.user)

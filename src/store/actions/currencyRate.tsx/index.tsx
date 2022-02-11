@@ -19,9 +19,18 @@ export const currencyRateCleanup = () => ({
   type: "CURRENCY_CLEANUP",
 });
 
+/**
+ * @const currencyRate
+ * @param payload the passed data
+ * @returns the currency rate for two pair of currency
+ */
 export const currencyRate = (payload: any) => async (dispatch: any) => {
   try {
     dispatch(currencyRateStart());
+     /**
+     * @const requestObj
+     * @description contains the request parameters
+     */
     const requestObj = {
       path: 'currencies/rate',
       method: 'GET',
