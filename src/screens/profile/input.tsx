@@ -13,6 +13,7 @@ const ProfileInputWrapper = () => {
     const dispatch = useDispatch()
     const profileState = useSelector((s: any) => s.profile)
     const Navigate = useNavigate()
+    const [success, setSuccess] = useState(false)
     const fetchUserState = useSelector((s: any) => s.fetchuser)
     const [theuser, setUser]: any = useState();
     const onFinish = (values: any) => {
@@ -21,7 +22,7 @@ const ProfileInputWrapper = () => {
     }
     useEffect(()=>{
         dispatch(fetchUser())
-    });
+    },[dispatch]);
     useEffect(() => {
         if (fetchUserState.isSuccessful) {
             setUser(fetchUserState.data.user)
@@ -34,8 +35,9 @@ const ProfileInputWrapper = () => {
 
     useEffect(() => {
         if (profileState.isSuccessful) {
+            setSuccess(true);
+            setTimeout(()=>Navigate('/exchange'), 3000)
             dispatch(profileCleanup())
-            Navigate("/exchange")
         } else if (profileState.error) {
             setError(profileState.error)
             dispatch(profileCleanup())
@@ -47,6 +49,9 @@ const ProfileInputWrapper = () => {
                 {error ? (
                     <Alert message={error} style={{display:"flex",flexDirection:"row",justifyContent:"center", fontWeight:"bold",alignItems: "center", width: 300, height: 50,color:"#fff",marginLeft: 60,marginBottom:20, borderRadius: 10}} className="bg-danger" type='error' showIcon />
                 ) : null}
+                {success ? (
+                    <Alert message="Profile updated successfully" type='error'className="mb-5 bg-success px-3 py-3 text-white" style={{borderRadius: 8}} />
+            ): null}
                 <Form
                     labelCol={{ span: 24 }}
                     wrapperCol={{ span: 24 }}
@@ -56,7 +61,7 @@ const ProfileInputWrapper = () => {
                     <Form.Item
                         label='Firstname'
                         name='firstName'
-                        className="fadeIn second"
+                        className="fadeIn second mt-5"
                         rules={[
                             {
                                 required: true,
@@ -69,7 +74,7 @@ const ProfileInputWrapper = () => {
                         <Input/>
                     </Form.Item>
                     <Form.Item
-                        className='fadeIn third'
+                        className='fadeIn third mt-5'
                         labelAlign='left'
                         label='Lastname'
                         name='lastName'
@@ -85,7 +90,7 @@ const ProfileInputWrapper = () => {
                     </Form.Item>
 
                     <Form.Item
-                        className='fadeIn third'
+                        className='fadeIn third mt-5 mb-5'
                         labelAlign='left'
                         label='Date of Birth'
                         name='dob'

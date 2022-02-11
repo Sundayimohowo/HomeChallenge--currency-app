@@ -35,7 +35,7 @@ const LoginInputWrapper = () => {
             {success && window.location.reload()}
             {!loading && (<div id="formContent">
                 {error ? (
-                    <Alert message={error} type='error' showIcon closable />
+                    <Alert message={error} type='error' className="mb-3 bg-danger px-3 py-3 text-white" style={{ borderRadius: 8 }} />
                 ) : null}
                 <Form
                     labelCol={{ span: 24 }}
@@ -59,10 +59,10 @@ const LoginInputWrapper = () => {
                         ]}
                         labelAlign='left'
                     >
-                        <Input />
+                        <Input placeholder="Enter Your Email"/>
                     </Form.Item>
                     <Form.Item
-                        className='fadeIn third'
+                        className='fadeIn third mt-5 mb-5'
                         labelAlign='left'
                         label='Password'
                         name='password'
@@ -77,7 +77,7 @@ const LoginInputWrapper = () => {
                             }
                         ]}
                     >
-                        <Input.Password />
+                        <Input.Password placeholder="Enter Your Password" />
                     </Form.Item>
                     <Form.Item>
                         <input type="submit" value="Login" />
