@@ -14,7 +14,7 @@ const AxiosCall = async (requestObj: { path: any; method: any; data: any; conten
   /**
    * Basic authorization token generated when user logs in and stored in the local storage
    */
-  const token = localStorage.getItem('authToken'); 
+  const token = localStorage.getItem('authToken');
 
   /**
    * The request header
@@ -36,7 +36,7 @@ const AxiosCall = async (requestObj: { path: any; method: any; data: any; conten
      */
     const result = response && response.data;
     return result; // return result to the user
-  }catch (error) {
+  } catch (error) {
     /**
      * if an error occur, catch the error and treat the error
      */
@@ -46,7 +46,7 @@ const AxiosCall = async (requestObj: { path: any; method: any; data: any; conten
       /**
        * if the token has expires, refresh the token and generate a new access token
        */
-      const request_token = await Axios({
+      Axios({
         url: 'https://homechallenge.volopa.com/auth/getToken', //token endpoint
         method: 'post',
         params: {
@@ -58,17 +58,19 @@ const AxiosCall = async (requestObj: { path: any; method: any; data: any; conten
           'Accept': 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-      });
-
-      /**
-       * store the new genrated token in the storage
-       */
-      localStorage.setItem("authToken",request_token.data.access_token)
-      localStorage.setItem("refreshToken",request_token.data.access_token)
-      window.location.reload(); // to refresh the page
+      }).then(
+        (response) => {
+          /**
+      * store the new genrated token in the storage
+      */
+          localStorage.setItem("authToken", response.data.access_token)
+          localStorage.setItem("refreshToken", response.data.access_token)
+          window.location.reload(); // to refresh the page
+        }
+      );
     }
     return response
-}
+  }
 };
 
 export default AxiosCall; // export the component
