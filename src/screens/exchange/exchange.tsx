@@ -73,7 +73,7 @@ const ExchangeInputWrapper = () => {
                 setBalances([...balances, { "id": single.id, "code": single.code, "amount": sing.amount, "image": image }]);
             })
         })
-    }, [ allCurrencyState, balances, fetchUserState])
+    }, [ fetchUserState])
 
     useEffect(() => {
         axios({
@@ -116,8 +116,6 @@ const ExchangeInputWrapper = () => {
         } else if (exchangeState.error) {
             setError(exchangeState.error)
             dispatch(exchangeCleanup())
-        } else if (exchangeState.isLoading) {
-            setLoading(true);
         }
     }, [dispatch, exchangeState])
     return (
@@ -131,14 +129,14 @@ const ExchangeInputWrapper = () => {
                         <input defaultValue={0} onChange={(e: any) => { setConverBox(e.target.value); setAmount(e.target.value) }} type="number" style={{ width: "60%" }} id="login" className="fadeIn second searchBox" name="login" placeholder="100" />
                         <select className="fadeIn second from" onChange={(e: any) => { setFrom(e.target.value); setAvailable(() => balances.filter((balance: any) => balance.code === e.target.value)) }} style={{ width: "40%", marginTop: 7, marginBottom: 7, border: "none", borderRadius: 6, marginRight: 7 }}>
                             {
-                                balances && balances.map((balance: any) => <option key={balance.id} value={balance.code}> {balance.code}</option>)
+                                balances && balances.map((balance: any) => <option key={balance.code} value={balance.code}> {balance.code}</option>)
                             }
                         </select>
                     </div>
                     <div id="finalAmount" className="text-start px-2 mt-4" style={{ width: "100%" }}><span>CURRENT EXCHANGE RATE: </span><span className="finalValue" style={{ color: "green" }}>{conversionRate}</span></div>
-                    <label className="text-start px-2 mt-4" style={{ width: "100%" }}>I NEED TO EXCHANGE</label>
+                    <label className="text-start px-2 mt-4" style={{ width: "100%" }}>TO</label>
                     <div className="d-flex flex-row ">
-                        <input value={amount} onChange={()=>{}} style={{ width: "60%" }} type="number" id="login" className="fadeIn second convert" placeholder="100" />
+                        <input value={conversionRate * amount} onChange={()=>{}} style={{ width: "60%" }} type="number" id="login" className="fadeIn second convert" placeholder="100" />
                         <select onChange={(e: any) => setTo(e.target.value)} className="fadeIn second to" style={{ width: "40%", marginTop: 7, marginBottom: 7, border: "none", borderRadius: 6, marginRight: 7 }}>
                             {
                                 allCurrencies && allCurrencies.map((cur: any) => <option key={cur.code} value={cur.code}> {cur.code}</option>)
