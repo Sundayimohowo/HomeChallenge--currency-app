@@ -11,8 +11,6 @@ const HomeWrapper = () => {
     const [balances, setBalances]: any = useState([])
     const [error, setError] = useState(null)
     const dispatch = useDispatch()
-    const [success, setSuccess] = useState(false)
-    const [loading, setLoading] = useState(false)
     const fetchUserState = useSelector((s: any) => s.fetchuser)
     const allCurrencyState = useSelector((s: any) => s.fetchAllCurrency)
     // const onFinish = (values: any) => {
@@ -28,7 +26,6 @@ const HomeWrapper = () => {
     }, [dispatch]);
     useEffect(() => {
         if (fetchUserState && fetchUserState.isSuccessful) {
-            setSuccess(true)
             console.log("done")
             setLoggedinUser(fetchUserState.data.user)
             dispatch(fetchUserCleanup());
@@ -44,7 +41,8 @@ const HomeWrapper = () => {
             loggedinUser && loggedinUser.balances.map((sing: any) => {
                 allCurrencyState && allCurrencyState.data.currencies.filter((single: any) => single.id !== loggedinUser.balances[0].currency_id).map((single: any) => {
                     const image = single.code.toLowerCase()
-                    single.id === sing.currency_id && setBalances([...balances, { "id": single.id, "code": single.code, "amount": sing.amount, "image": image }]);
+                    sing.currency_id === single.id && setBalances([...balances, { "id": single.id, "code": single.code, "amount": sing.amount, "image": image }]);
+                    sing.currency_id === single.id && console.log({ "id": single.id, "code": single.code, "amount": sing.amount, "image": image })
                 })
             })
             dispatch(fetchUserCleanup());

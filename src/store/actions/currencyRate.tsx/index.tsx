@@ -32,9 +32,9 @@ export const currencyRate = (payload: any) => async (dispatch: any) => {
      * @description contains the request parameters
      */
     const requestObj = {
-      path: 'currencies/rate',
+      path: `currencies/rate?buyCcy=${payload.buyCcy}&sellCcy=${payload.sellCcy}`,
       method: 'GET',
-      data: payload,
+      data: "",
     };
     const { data } = await AxiosCall(requestObj);
     dispatch(currencyRateSuccess(data));

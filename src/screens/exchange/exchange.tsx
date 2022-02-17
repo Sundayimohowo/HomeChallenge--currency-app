@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { exchange, exchangeCleanup } from "../../store/actions/currencies";
 import { currencyRate, currencyRateCleanup } from "../../store/actions/currencyRate.tsx";
@@ -25,11 +25,26 @@ const ExchangeInputWrapper = () => {
     const fetchUserState = useSelector((s: any) => s.fetchuser) // fetch the logged in user details
     const allCurrencyState = useSelector((s: any) => s.fetchAllCurrency) // fetch all currencies
     const dispatch = useDispatch() // for firing actions
+    const [success, setSuccess] = useState("");
     const exchangeState = useSelector((s: any) => s.exchange) 
     const exchangeRate = useSelector((s: any) => s.currencyRate)
     const fromCurrency: any = document.querySelector(".from"); // get the value of the sell currency(DOM)
     const toCurrency: any = document.querySelector('.to'); // gets the value of the buy currency(DOM)
     var searchBox: any = document.querySelector('.searchBox');
+
+    /**
+ * To get the exchange rate for two selected currency
+ */
+     const getRate = useCallback(() => {
+        // the endpoint payload
+        const values = {
+            "buyCcy": from === "" ? "USD" : from,
+            "sellCcy": to === "" ? "RON": to,
+        }
+    // dispatch action to fetch the currency pair rate
+        dispatch(currencyRate(values))
+        console.log(values)
+    }, [dispatch, from, to]);
 /**
  * dispatch the fetuser and allcurrency action to fetch the login user 
  * and fetch the available currencies respectively
@@ -37,50 +52,29 @@ const ExchangeInputWrapper = () => {
     useEffect(() => {
         dispatch(fetchUser())
         dispatch(allCurrency())
-    }, [dispatch,]);
-
-/**
- * To get the exchange rate for two selected currency
- */
-    useEffect(() => {
-        // the endpoint payload
-        const values = {
-            "buyCcy": from === "" ? fromCurrency && fromCurrency.value : from,
-            "sellCcy": to === "" ? toCurrency && toCurrency.value : to,
-        }
-    // dispatch action to fetch the currency pair rate
-        dispatch(currencyRate(values))
-    }, [dispatch, from, fromCurrency, to, toCurrency]);
+        fromCurrency && fromCurrency.value !== null && getRate();
+    }, [dispatch, fromCurrency, getRate]);
 
 
     useEffect(() => {
         if (fetchUserState.isSuccessful) {
             setLoggedinUser(fetchUserState.data.user)
-            // console.log(fetchUserState.data.user)
             dispatch(fetchUserCleanup());
         } else if (fetchUserState.error) {
             setError(fetchUserState.error)
             dispatch(fetchUserCleanup())
         }
-    }, [fetchUserState]);
+    }, [allCurrencies, allCurrencyState, balances, dispatch, fetchUserState, loggedinUser]);
 
     useEffect(() => {
-        if (allCurrencyState && allCurrencyState.isSuccessful) {
-            setCurrencies(allCurrencyState.data.currencies.filter((single: any) => single.id !== loggedinUser.balances[0].currency_id));
-            dispatch(fetchUserCleanup());
-        } else if (allCurrencyState.error) {
-            setError(allCurrencyState.error)
-            dispatch(fetchUserCleanup())
-        }
-    }, [allCurrencyState, dispatch])
-    useEffect(() => {
-        loggedinUser && loggedinUser.balances.map((sing: any) => {
-            allCurrencies.map((single: any) => {
+        fetchUserState.isSuccessful && fetchUserState.data.user.balances.map((sing: any) => {
+            allCurrencyState.isSuccessful && allCurrencyState.data.currencies.filter((single: any) => single.id !== fetchUserState.data.user.balances[0].currency_id).map((single: any) => {
                 const image = single.code.toLowerCase()
-                single.id === sing.currency_id && setBalances([...balances, { "id": single.id, "code": single.code, "amount": sing.amount, "image": image }]);
+                setBalances([...balances, { "id": single.id, "code": single.code, "amount": sing.amount, "image": image }]);
             })
         })
-    }, [allCurrencies, balances, loggedinUser])
+    }, [ allCurrencyState, balances, fetchUserState])
+
     useEffect(() => {
         axios({
             url: 'https://homechallenge.volopa.com/currencies',
@@ -91,21 +85,21 @@ const ExchangeInputWrapper = () => {
             },
         }).then(
             (currencies: any) => {
-                setCurrencies(currencies.data.data.currencies);
+                fetchUserState.isSuccessful && setCurrencies(currencies.data.data.currencies.filter((single: any) => single.id !== fetchUserState.data.user.balances[0].currency_id));
             }
         );
-
-    },[setCurrencies]);
+    },[fetchUserState, fetchUserState.isSuccessful, setCurrencies]);
+    
     useEffect(() => {
         if (exchangeRate.isSuccessful) {
             setRate(exchangeRate.data.currentRate.rate)
-            console.log(exchangeRate);
             dispatch(currencyRateCleanup());
         } else if (exchangeRate.error) {
             setError(exchangeRate.error)
             dispatch(currencyRateCleanup())
         }
     }, [dispatch, exchangeRate])
+    
     const onFinish = () => {
         const values = {
             "buyCcy": fromCurrency.value,
@@ -117,6 +111,7 @@ const ExchangeInputWrapper = () => {
 
     useEffect(() => {
         if (exchangeState.isSuccessful) {
+            setSuccess("Succesfull")
             dispatch(exchangeCleanup())
         } else if (exchangeState.error) {
             setError(exchangeState.error)
@@ -130,7 +125,7 @@ const ExchangeInputWrapper = () => {
             <div id="formContent">
                 <h5 >Your Available {from === "" ? balances.map((balance: any, index: any) => index === 0 && balance.code) : from} fund : <span className="available_bal">{available === 0 && balances.map((balance: any, index: any) => index === 0 && balance.amount)}</span></h5>
 
-                <form onSubmit={(e) => { e.preventDefault();}}>
+                <form onSubmit={(e) => { e.preventDefault(); onFinish()}}>
                     <label className="text-start px-2 mt-4" style={{ width: "100%" }}>I NEED TO EXCHANGE</label>
                     <div className="d-flex flex-row ">
                         <input defaultValue={0} onChange={(e: any) => { setConverBox(e.target.value); setAmount(e.target.value) }} type="number" style={{ width: "60%" }} id="login" className="fadeIn second searchBox" name="login" placeholder="100" />
@@ -143,16 +138,14 @@ const ExchangeInputWrapper = () => {
                     <div id="finalAmount" className="text-start px-2 mt-4" style={{ width: "100%" }}><span>CURRENT EXCHANGE RATE: </span><span className="finalValue" style={{ color: "green" }}>{conversionRate}</span></div>
                     <label className="text-start px-2 mt-4" style={{ width: "100%" }}>I NEED TO EXCHANGE</label>
                     <div className="d-flex flex-row ">
-                        <input value={amount} style={{ width: "60%" }} type="number" id="login" className="fadeIn second convert" placeholder="100" />
+                        <input value={amount} onChange={()=>{}} style={{ width: "60%" }} type="number" id="login" className="fadeIn second convert" placeholder="100" />
                         <select onChange={(e: any) => setTo(e.target.value)} className="fadeIn second to" style={{ width: "40%", marginTop: 7, marginBottom: 7, border: "none", borderRadius: 6, marginRight: 7 }}>
                             {
-                                allCurrencies && allCurrencies.map((cur: any) => <option value={cur.code}> {cur.code}</option>)
+                                allCurrencies && allCurrencies.map((cur: any) => <option key={cur.code} value={cur.code}> {cur.code}</option>)
                             }
                         </select>
                     </div>
-                    {loading && <div className="spinner-grow" role="status">
-                    </div>}
-                    {!loading && <input disabled={(amount === 0 || amount > (available === 0 && balances.map((balance: any, index: any) => index === 0 && balance.amount))) && true} onClick={() => { amount > (available === 0 && balances.map((balance: any, index: any) => index === 0 && balance.amount)) && alert("Sell anmount is greater than available fund for this currency") }} type="submit" />}
+                     <input type="submit" />
                 </form>
 
             </div>
