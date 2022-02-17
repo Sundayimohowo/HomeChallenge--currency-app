@@ -69,7 +69,7 @@ const AxiosCall = async (requestObj: { path: any; method: any; data: any; conten
             window.location.reload()
           }
         );
-      },3000)
+      },1000)
      
     }
     return response
