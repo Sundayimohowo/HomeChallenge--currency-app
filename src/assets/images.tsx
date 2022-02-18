@@ -224,22 +224,23 @@ export const flags = [
     },
 
 ];
-type flagImageProps ={
-    style: any,
-    src: any
-}
-const FlagImages:React.FC<flagImageProps>=({src,style})=>{
-    const [sourceImg, setSrc]: any = useState([]);
-    useEffect(()=>{
-        flags.map((single)=>{
-            if (single.name === src) {
-                setSrc([...sourceImg, {single}]);
-            }
-        })
-    })
-    return(
-        sourceImg.map((ref: any)=>ref.name === src ? (<img src={ref.flag} alt="" style={style} />) : (<span></span>))
-    )
-}
+// type flagImageProps ={
+//     style: any,
+//     src: any
+// }
+// const FlagImages:React.FC<flagImageProps>=({src,style})=>{
+//     const [sourceImg, setSrc]: any = useState([]);
+//     useEffect(()=>{
+//         flags.map((single)=>{
+//             if (single.name === src) {
+//                 setSrc([...sourceImg, {single}]);
+//             }
+//         })
+//     })
+//     return(
+//         // sourceImg.map((ref: any)=>ref.name === src && <img src={ref.flag} alt={ref.name} style={{...style}} />)
+//         <img src={flags[0].flag} alt="" />
+//     )
+// }
 
-export default FlagImages;
+export default flags;

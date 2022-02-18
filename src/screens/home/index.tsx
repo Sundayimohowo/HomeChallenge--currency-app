@@ -1,8 +1,7 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import FlagImages from "../../assets/images";
+import flags from "../../assets/images";
 import { allCurrency } from "../../store/actions/fetchCurrencies";
 import { fetchUser, fetchUserCleanup } from "../../store/actions/home";
 const HomeWrapper = () => {
@@ -19,39 +18,44 @@ const HomeWrapper = () => {
     // }
     useEffect(() => {
         dispatch(allCurrency())
-    }, []);
+    }, [dispatch]);
 
     useEffect(() => {
         dispatch(fetchUser())
     }, [dispatch]);
     useEffect(() => {
         if (fetchUserState && fetchUserState.isSuccessful) {
-            console.log("done")
             setLoggedinUser(fetchUserState.data.user)
             dispatch(fetchUserCleanup());
         } else if (fetchUserState.error) {
             setError(fetchUserState.error)
             dispatch(fetchUserCleanup())
         }
-    }, [dispatch, fetchUserState.error, fetchUserState.isSuccessful]);
+    }, [dispatch, fetchUserState]);
 
     useEffect(() => {
-        if (loggedinUser.balances && allCurrencyState.isSuccessful) {
-            setCurrencies(allCurrencyState.data.currencies.filter((single: any) => single.id !== loggedinUser.balances[0].currency_id));
-            loggedinUser && loggedinUser.balances.map((sing: any) => {
-                allCurrencyState && allCurrencyState.data.currencies.filter((single: any) => single.id !== loggedinUser.balances[0].currency_id).map((single: any) => {
-                    const image = single.code.toLowerCase()
-                    sing.currency_id === single.id && setBalances([...balances, { "id": single.id, "code": single.code, "amount": sing.amount, "image": image }]);
-                    sing.currency_id === single.id && console.log({ "id": single.id, "code": single.code, "amount": sing.amount, "image": image })
-                })
-            })
+        if (fetchUserState.isSuccessful && allCurrencyState.isSuccessful) {
+            fetchUserState && fetchUserState.data.user.balances.map(
+                (sing: any) => {
+                    setCurrencies(allCurrencyState.data.currencies.filter((single: any) => single.id === sing.currency_id));
+                    allCurrencyState && allCurrencyState.data.currencies.filter((single: any) => single.id === sing.currency_id).map((single: any) => {
+                        const image = single.code.toLowerCase()
+                        flags.map((flag: any) => {
+                            if (flag.name === image) {
+                                sing.currency_id === single.id && setBalances([...balances, { "id": single.id, "code": single.code, "amount": sing.amount, "image": flag.flag }]);
+                                sing.currency_id === single.id && console.log({ "id": single.id, "code": single.code, "amount": sing.amount, "image": flag.flag })
+                            }
+                        })
+                    })
+
+                }
+            )
             dispatch(fetchUserCleanup());
         } else if (allCurrencyState.error) {
             setError(allCurrencyState.error)
             dispatch(fetchUserCleanup())
         }
-    }, [allCurrencyState, dispatch, loggedinUser.balances])
-
+    }, [allCurrencyState, dispatch, fetchUserState])
 
     return (
         <div className="wrapper fadeInDown">
@@ -59,9 +63,29 @@ const HomeWrapper = () => {
                 {loggedinUser && loggedinUser.first_name !== "" && loggedinUser.last_name !== "" ? <h4>Hello {loggedinUser.first_name}, your account balances are as per bellow</h4> : <h4>You should set your name in the Profile section. Your account balances are as per bellow:</h4>}
 
                 <div className="d-flex flex-column">
+                    <div className="d-flex flex-row justify-content-between">
+                        <div className="col-6">
+                            <h6>Currency</h6>
+                        </div>
+                        <div className="col-6">
+                            <h6>Available To Spend</h6>
+                        </div>
+                    </div>
                     {
-                        balances && balances.map((balance: any) => <span key={balance.id}> {balance.code}<FlagImages style={{ width: 100, height: 100 }} src={balance.image} /></span>)
+                        balances && balances.map((balance: any) =>
+                            <div key={balance.id} className="d-flex flex-row justify-content-between">
+                                <div className="col-6">
+                                    <img src={balance.image} alt="flags" />
+                                    <span>{balance.code}</span>
+                                </div>
+                                <div className="col-6">
+                                    <span>{balance.amount}</span>
+                                </div>
+                            </div>
+
+                        )
                     }
+
                 </div>
                 <input type="submit" value="Exchange" onClick={() => window.location.href = "/exchange"} />
                 <div id="formFooter">
