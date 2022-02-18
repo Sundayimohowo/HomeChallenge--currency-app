@@ -17,7 +17,6 @@ export const exchangeFail = (payload: any) => ({
   payload,
 });
 
-
 // cleans the state after each call
 export const exchangeCleanup = () => ({
   type: "CURRENCY_CLEANUP",
@@ -32,6 +31,7 @@ export const exchangeCleanup = () => ({
 export const exchange = (payload: any) => async (dispatch: any) => {
   try {
     dispatch(exchangeStart()); // when the call is fired
+    
     /**
      * @const requestObj
      * @description contains the request parameters
@@ -41,6 +41,7 @@ export const exchange = (payload: any) => async (dispatch: any) => {
       method: 'POST', // the request method
       data: payload, 
     };
+
     // makes the call to the endpoint with the provided requestObj
     const { data } = await AxiosCall(requestObj);
     // change the state to success

@@ -80,29 +80,26 @@ const ExchangeInputWrapper = () => {
         );
     }, [fetchUserState]);
 
-    useLayoutEffect(() => {
-        const req = () => {
-            if (fetchUserState.isSuccessful) {
-                const bal = fetchUserState.data.user.balances[0];
-                const currency: any = allCurrencyState.isSuccessful && allCurrencyState.data.currencies.filter((single: any) => single.id === bal.currency_id);
-                const curr = allCurrencyState.isSuccessful && allCurrencyState.data.currencies.filter((single: any) => single.id !== fetchUserState.data.user.balances[0].currency_id);
+    useEffect(() => {
+                // const bal = fetchUserState && fetchUserState.data.user.balances[0];
+                // const currency: any = allCurrencyState.isSuccessful && allCurrencyState.data.currencies.filter((single: any) => single.id === bal.currency_id);
+                // const curr = allCurrencyState.isSuccessful && allCurrencyState.data.currencies.filter((single: any) => single.id !== fetchUserState.data.user.balances[0].currency_id);
                 // const values = {
                 //     "buyCcy": from === "" ? (currency && currency[0].code) : from,
                 //     "sellCcy": to === "" ? (curr && curr[0].code) : to,
                 // }
-                const values = {
+                const allVal = {
                     "buyCcy": from === "" ? "GBP" : from,
                     "sellCcy": to === "" ? "EUR" : to,
                 }
-                dispatch(currencyRate(values))
-            }
-        }
-        req();
-    }, [allCurrencyState, dispatch, fetchUserState, from, to])
+                console.log(allVal)
+                dispatch(currencyRate(allVal))
+        
+    }, [dispatch, from, to])
 
     useEffect(() => {
         if (exchangeRate.isSuccessful) {
-            setRate(exchangeRate.data.currentRate.rate)
+            exchangeRate.data.currentRate && setRate(exchangeRate.data.currentRate.rate)
             dispatch(currencyRateCleanup())
         } else if (exchangeRate.error) {
             setError(exchangeRate.error)
@@ -112,12 +109,12 @@ const ExchangeInputWrapper = () => {
 
     const onFinish = () => {
         const values = {
-            "buyCcy": fromCurrency.value,
-            "sellCcy": toCurrency.value,
+            "buyCcy": toCurrency.value,
+            "sellCcy": fromCurrency.value,
             "amount": searchBox.value,
         }
         dispatch(exchange(values))
-        // console.log(values)
+        console.log(values)
     }
 
     useEffect(() => {
