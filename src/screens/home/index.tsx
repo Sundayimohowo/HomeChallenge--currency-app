@@ -60,10 +60,10 @@ const HomeWrapper = () => {
     return (
         <div className="wrapper fadeInDown">
             <div id="formContent">
-                {loggedinUser && loggedinUser.first_name !== "" && loggedinUser.last_name !== "" ? <h4>Hello {loggedinUser.first_name}, your account balances are as per bellow</h4> : <h4>You should set your name in the Profile section. Your account balances are as per bellow:</h4>}
+                {loggedinUser && loggedinUser.first_name !== "" && loggedinUser.last_name !== "" ? <h4 className="mt-5">Hello {loggedinUser.first_name}, your account balances are as per bellow</h4> : <h4>You should set your name in the Profile section. Your account balances are as per bellow:</h4>}
 
-                <div className="d-flex flex-column">
-                    <div className="d-flex flex-row justify-content-between">
+                <div className="d-flex flex-column mt-4">
+                    <div className="d-flex flex-row justify-content-between mx-4">
                         <div className="col-6">
                             <h6>Currency</h6>
                         </div>
@@ -87,7 +87,7 @@ const HomeWrapper = () => {
                     }
 
                 </div>
-                <input type="submit" value="Exchange" onClick={() => window.location.href = "/exchange"} />
+                <input className="my-5" type="submit" value="Exchange" onClick={() => window.location.href = "/exchange"} />
                 <div id="formFooter">
                     <Link to={"/profile"}>Update Profile</Link>
                 </div>
