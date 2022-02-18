@@ -114,21 +114,24 @@ const ExchangeInputWrapper = () => {
             "amount": searchBox.value,
         }
         dispatch(exchange(values))
-        console.log(values)
+        alert("No query results for model App\\Models\\CurrentRate")
     }
 
     useEffect(() => {
         if (exchangeState.isSuccessful) {
-            setSuccess("Succesfull")
+            // setSuccess(exchangeState.data.data.message)
+            //issue with the api
+            console.log(exchangeState)
             dispatch(exchangeCleanup())
         } else if (exchangeState.error) {
             setError(exchangeState.error)
             dispatch(exchangeCleanup())
         }
-    }, [dispatch, exchangeState])
+    }, [ exchangeState])
 
     return (
         <div className="wrapper fadeInDown">
+            
             <div id="formContent">
                 <h5 >Your Available {from === "" ? balances.map((balance: any, index: any) => index === 0 && balance.code) : from} fund : <span className="available_bal">{available === 0 && balances.map((balance: any, index: any) => index === 0 && balance.amount)}</span></h5>
 
